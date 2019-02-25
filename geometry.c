@@ -40,6 +40,20 @@ int verify(point p, point a, point b) {
   
   //Verifica se o ponto p está contido na área que delimita a aresta entre a e b.
 
+  /* 
+  
+  
+REMOVE BEFORE FLIGHT     REMOVE BEFORE FLIGHT     REMOVE BEFORE FLIGHT    REMOVE BEFORE FLIGHT 
+ 
+ [23:52, 23/2/2019] Francisco Aveiro: Usando a equação da reta, e sabendo q y n mudo,
+  é possivel calcular o ponto exato de x q passa pela reta!!!!!!!!!!!!!!!!!
+
+
+xencontro=(ya-yp)/m-xa
+[23:52, 23/2/2019] Francisco Aveiro: xencontro=((ya-yp)/m)-xa 
+
+REMOVE BEFORE FLIGHT     REMOVE BEFORE FLIGHT     REMOVE BEFORE FLIGHT    REMOVE BEFORE FLIGHT */
+
   if (p.x >= a.x && p.x <= b.x) {
     if (p.y >= a.y && p.y <= b.y) {
 
@@ -60,60 +74,20 @@ int verify(point p, point a, point b) {
       }
 
       //Verifica se raio disparado para a direita cruza a aresta contida entre os pontos a e b.
-      //Chamamos de partícula i cada parte infinitesimal desse raio disparado para a direita.
-      //Verifica se partícula i cruza aresta em algum momento a mesma lógica para esta verificação com o ponto p.
 
-      for (int i = xmin, i < xmin+dx, i+=0.00001) {
-        
-        dp = i - xmin;
-
-        //Tratativa de caso especial para não haver divisão por zero.
-        if (dp - 0 < 0.00001) {
-          dp = 0.00001;
-        }
-
-        da = dp / dx;
-        dp = p.y - ymin;
-
-        if (dyda - dp < 0.00001) {
-         return 1;
+      if (p.x < a.x || p.x < b.x) {
+        return 1;
       }
-
-
-      }
-
-
-
-
 
     }
   }
 
-  
-  
-  
-  
-  
-  
-  
-  
-  //Repete a verificação do raio disparado na hipótese do ponto p não estar contido na área delimitada pela aresta.
-  for (int i = xmin, i < xmin+dx, i+=0.00001) {
-        
-    dp = i - xmin;
-
-    //Tratativa de caso especial para não haver divisão por zero.
-   if (dp - 0 < 0.00001) {
-      dp = 0.00001;
-     }
-
-     da = dp / dx;
-     dp = p.y - ymin;
-
-     if (dyda - dp < 0.00001) {
-       return 1;
-      }
-
+  if (p.y >= a.y && p.y <= b.y) {
+    
+    if (p.x < a.x || p.x < b.x) {
+      return 1;
+    }
+  }
 
   return 0;
 }
