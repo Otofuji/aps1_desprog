@@ -2,99 +2,72 @@
 
 #include "geometry.h"
 
+
 int verify(point p, point a, point b) {
-  
-  
-  //Inicialização de variáveis.
 
-  double da; //variaçåo percentual da área que delimita a aresta entre a e b.
-  double dx; //diferença em módulo dos pontos a e b no eixo x.
-  double dy; //diferença em módulo dos pontos a e b no eixo y.
-  double xmin; //menor valor do eixo x entre os pontos a e b.
-  double ymin; //menor valor do eixo y entre os pontos a e b. 
-  double dp; //diferença em módulo axial do ponto p e do menor valor axial dos pontos a e b.
-  double dyda; //valor no eixo y que contém a aresta para um dado valor no eixo x. 
-
-
-  //Verifica o módulo da diferença dos pontos a e b.
-  //Também, verifica o menor x e o menor y. Isso será usado na verificação da distância axial percentual mais adiante.
-
-  if (a.x > b.x) {
-    dx = a.x - b.x;
-    xmin = b.x;
-    }
-  else {
-    dx = b.x - a.x;
-    xmin = a.x;
-    }
-
-  if (a.y > b.y) {
-    dy = a.y - b.y;
-    ymin = b.y;
-    }
-  else {
-    dy = b.y - a.y;
-    ymin = a.y;
-    }
-
-  
-  //Verifica se o ponto p está contido na área que delimita a aresta entre a e b.
-
-  /* 
-  
-  
-REMOVE BEFORE FLIGHT     REMOVE BEFORE FLIGHT     REMOVE BEFORE FLIGHT    REMOVE BEFORE FLIGHT 
+  //Inicializando Variáveis
+  double ex, ey, m1, m2, m2y, m2x;
+  double difMinima = 0.000001;
+  if ((p.y < (a.y+difMinima) && p.y > (b.y-difMinima)) || (p.y > (a.y-difMinima) && p.y < (b.y+difMinima))) {     //Verifica se p se encontra dentro do intervalo da reta no eixo y
+    m2y = (a.y-b.y);                                                                                              //Achando o coeficiente angular do segmento AB   
+    m2x = (a.x-b.x);
+    m2 = m2y/m2x;             
  
- [23:52, 23/2/2019] Francisco Aveiro: Usando a equação da reta, e sabendo q y n mudo,
-  é possivel calcular o ponto exato de x q passa pela reta!!!!!!!!!!!!!!!!!
-
-
-xencontro=(ya-yp)/m-xa
-[23:52, 23/2/2019] Francisco Aveiro: xencontro=((ya-yp)/m)-xa 
-
-REMOVE BEFORE FLIGHT     REMOVE BEFORE FLIGHT     REMOVE BEFORE FLIGHT    REMOVE BEFORE FLIGHT */
-
-  if (p.x >= a.x && p.x <= b.x) {
-    if (p.y >= a.y && p.y <= b.y) {
-
-      //Verifica a distância do ponto p no eixo x percentualmente em relação ao trajeto axial inteiro.
-      //Por exemplo, se o menor valor de x é 10, o maior é 20 e o ponto p possui valor em x de 15, a distância percentual é de 50%.
-      
-      dp = p.x - xmin;
-      da = dp / dx;
-      dp = p.y - ymin;
-      dyda = dy*da;
-
-      //Verifica se valor percentual axial aplicado ao eixo y corresponde ao valor de p no eixo y.
-      //Se isso for verdade, o ponto p com certeza está exatamente em cima da aresta.
-
-      
-      if (dyda - dp < 0.00001) {
-        return 2;
-      }
-
-      //Verifica se raio disparado para a direita cruza a aresta contida entre os pontos a e b.
-
-      if (p.x < a.x || p.x < b.x) {
-        return 1;
-      }
-
+    if ( ( (a.y-p.y)<difMinima && (a.y-p.y)>(-difMinima) ) || ((p.y-b.y) < difMinima && (p.y-b.y) > (-difMinima))) {         //Verifica se precisa aplicar uma perturbação no ray cast     
+      m1 = -0.1;                                                                                                             //Coeficiente angular de ray cast perturbado
     }
-  }
+    else {
+      m1 = 0;
+    }
 
-  if (p.y >= a.y && p.y <= b.y) {
+
+
+    if(m2x<difMinima && m2x >(-difMinima)){                                                                 //Verifica um caso do coeficiente angular infinito, para tratar separadamente
+       ex = a.x;
+    }
+    else{
+      ex = ( ((p.y-(p.x*m1)) - (a.y-(a.x*m2)) )/(m2-m1)   );
+    }
+    ey = p.y-(m1*(p.x-ex));
+    if( ((ey<a.y+difMinima && ey>b.y-difMinima) || (ey>a.y-difMinima && ey<b.y+difMinima)) && ((a.x-difMinima<ex&&b.x+difMinima>ex)||(a.x+difMinima>ex&&b.x-difMinima<ex)) ){                   // Verifica se o ponto de encontro das 2 retas esta dentro dos eixos xy do segmento de reta
+      if(ex>p.x-difMinima){
+        if(ex<difMinima+p.x&&((a.x-difMinima<ex&&b.x+difMinima>ex)||(a.x+difMinima>ex&&b.x-difMinima<ex))){
+          return 2;
+        }
+        else{
+          return 1;
+        }
+      }
+      else if(ex<p.x+difMinima){
+        if(p.x <difMinima+ex){
+          return 2;
+        }
+      }
     
-    if (p.x < a.x || p.x < b.x) {
-      return 1;
     }
-  }
 
-  return 0;
+  }
+  return 0; // caso a reta não se encontre a direita ou emcima de p, retorna zero
 }
 
-
-
-  
 int inside(point p, point poly[], int n) {
-  return 0;
+  int sum = 0;   //Inicializando variaveis
+  int ret;
+  for(int i = 0;i<n;i++){ //Rodando para todos os lados
+    if(i==n-1){           //Verificar se é o lado composto pelo 1° e ultimo ponto
+      ret = verify(p,poly[i],poly[0]);
+    }
+    else{
+      ret = verify(p, poly[i], poly[i+1]);
+    }
+    if(ret==2){           //Verifica se está acima da linha
+      return 1;
+      break;
+    }
+    sum+=ret;             //Soma das saidas de verify
+  }
+  if(sum%2==0){           //Se a soma for par o ponto p está fora da imagem
+    return 0;
+  }
+  return 1;
 }
